@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1060184260247",
+    "firebase_url": "https://omegle-651b4.firebaseio.com",
+    "project_id": "omegle-651b4",
+    "storage_bucket": "omegle-651b4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1060184260247:android:1339fb5fd477c143",
+        "android_client_info": {
+          "package_name": "com.example.asus.omegle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1060184260247-fgjamsr73q8gihnqv77mg4esbsmq09ll.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.asus.omegle",
+            "certificate_hash": "7c74e5f851a16ffe51c13691eb0664d44ae0a40e"
+          }
+        },
+        {
+          "client_id": "1060184260247-9stk73hhr2rlsl165qkcc61idltdmpfh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1J3oyOEY9XCWdxEEHCb7IDur1tLCQrpI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1060184260247-9stk73hhr2rlsl165qkcc61idltdmpfh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
