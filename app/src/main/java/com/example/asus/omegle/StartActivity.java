@@ -15,6 +15,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class StartActivity extends AppCompatActivity {
 
@@ -25,6 +27,9 @@ public class StartActivity extends AppCompatActivity {
     private TextView mTxtView;
     private Button mCancelBtn;
 
+    private DatabaseReference mUserDatabase;
+    private String mCurrent_User_id;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,15 +37,20 @@ public class StartActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
+        mCurrent_User_id = mAuth.getCurrentUser().getUid();
+
+        mUserDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(mCurrent_User_id);
 
         mTxtView = (TextView)findViewById(R.id.start_textView);
         mCancelBtn = (Button)findViewById(R.id.start_cancel_btn);
 
-        mTxtView.setText(mAuth.getCurrentUser().getUid());
+        mTxtView.setText(mCurrent_User_id);
 
         mCancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                mUserDatabase.removeValue();
 
                 FirebaseAuth.getInstance().signOut();
 
