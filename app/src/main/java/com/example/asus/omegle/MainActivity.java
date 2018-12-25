@@ -21,7 +21,7 @@ import java.util.HashMap;
 public class MainActivity extends AppCompatActivity {
 
     private Button mChatBtn;
-    //baal pinaki
+
     private FirebaseAuth mAuth;
 
     private String mCurrent_User_id;
