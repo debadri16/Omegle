@@ -50,7 +50,7 @@ public class StartActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                mUserDatabase.removeValue();
+                //mUserDatabase.removeValue();
 
                 FirebaseAuth.getInstance().signOut();
 
