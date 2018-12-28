@@ -1,5 +1,6 @@
 package com.example.asus.omegle;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -32,7 +33,9 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference mUserDatabase, mQueryDb;
     private Query mUserQuery;
 
-    private void createUserData(String status){
+    private ProgressDialog mChatProgress;
+
+    private void createUserData(String chat_user_id, String status){
         mCurrent_User_id = mAuth.getCurrentUser().getUid();
 
         HashMap<String, String> userMap = new HashMap<>();
@@ -41,7 +44,10 @@ public class MainActivity extends AppCompatActivity {
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(mCurrent_User_id);
         mUserDatabase.setValue(userMap);
 
+        mChatProgress.dismiss();
+
         Intent startIntent = new Intent(MainActivity.this, StartActivity.class);
+        startIntent.putExtra("chat_user_id", chat_user_id);
         startActivity(startIntent);
         finish();
     }
@@ -67,9 +73,16 @@ public class MainActivity extends AppCompatActivity {
 
         mChatBtn = (Button) findViewById(R.id.main_chat_btn);
 
+        mChatProgress = new ProgressDialog(this);
+
         mChatBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                mChatProgress.setTitle("Pairing In");
+                mChatProgress.setMessage("Please wait while we're connecting you ...");
+                mChatProgress.setCanceledOnTouchOutside(false);
+                mChatProgress.show();
 
                 mAuth.signInAnonymously().addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
@@ -85,14 +98,14 @@ public class MainActivity extends AppCompatActivity {
                                     //if queue is empty, create new user with status = available and queue the user
                                     if(queueIsNotEmpty == 0){
                                         queueUser();
-                                        createUserData("available");
+                                        createUserData("waiting","available");
                                     }
                                     //if queue is not empty
                                     else{
                                         String other_userId = (String) dataSnapshot.child("userId").getValue();
                                         mQueryDb.removeValue();
                                         updateUser(other_userId,"busy");
-                                        createUserData("busy");
+                                        createUserData(other_userId,"busy");
 //                                      createSession(otherUser) eta korte hbe;
                                     }
                                 }
@@ -104,40 +117,9 @@ public class MainActivity extends AppCompatActivity {
                             });
 
 
-                            //check for the latest available user
-                            //eta baal er jinish ,, tao thak pore jodi lage
-//                            mUserDatabase = FirebaseDatabase.getInstance().getReference().child("users");
-//                            mUserQuery = mUserDatabase.orderByKey().limitToFirst(1);
-//                            mUserQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-//                                @Override
-//                                public void onDataChange(DataSnapshot dataSnapshot) {
-//                                    int user_count = (int) dataSnapshot.getChildrenCount();
-//                                    if(user_count == 0){
-//                                        createUserData();
-//                                    }
-//                                    else {
-//                                        for (DataSnapshot child : dataSnapshot.getChildren()) {
-//                                            String status = (String) child.child("status").getValue();
-//                                            if (status.equals("busy")) {
-//                                                createUserData();
-//                                            }
-//                                            //else if(status.equals())
-//                                            break;
-//                                        }
-//                                    }
-//                                }
-//                                @Override
-//                                public void onCancelled(DatabaseError databaseError) {
-//                                    Toast.makeText(MainActivity.this, "error!"  ,
-//                                            Toast.LENGTH_SHORT).show();
-//                                }
-//                            });
-
-
-
-
                         }
                         else{
+                            mChatProgress.dismiss();
                             Toast.makeText(MainActivity.this, "Chat didn't start",
                                     Toast.LENGTH_SHORT).show();
                         }
