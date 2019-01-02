@@ -46,73 +46,44 @@ public class StartActivity extends AppCompatActivity {
         mUser = mAuth.getCurrentUser();
         mCurrent_User_id = mAuth.getCurrentUser().getUid();
 
-        mChat_user_id = getIntent().getStringExtra("chat_user_id");
-
         mTxtView = (TextView)findViewById(R.id.start_textView);
         mTxtView2 = (TextView)findViewById(R.id.start_textView2);
         mCancelBtn = (Button)findViewById(R.id.start_cancel_btn);
 
         mTxtView.setText(mCurrent_User_id);
-        mTxtView2.setText(mChat_user_id);
+        mTxtView2.setText("waiting");
 
         mChatDatabase = FirebaseDatabase.getInstance().getReference().child("chat");
 
-        //creating session
-        if(! mChat_user_id.equals("waiting")){
+        mChatDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-            final HashMap<String, String> chat_userMap = new HashMap<>();
-            chat_userMap.put("seen","false");
+                if(dataSnapshot.hasChild(mCurrent_User_id)){
 
-            mChatDatabase.child(mChat_user_id).child(mCurrent_User_id).setValue(chat_userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
+                    //correct formatting to get the key only
+                    String temp = dataSnapshot.child(mCurrent_User_id).getValue().toString();
+                    mChat_user_id = temp.substring(1,temp.indexOf("="));
+                    mTxtView2.setText(mChat_user_id);
 
-                    mChatDatabase.child(mCurrent_User_id).child(mChat_user_id).setValue(chat_userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            Log.d("creating session", "paired users");
-                            Toast.makeText(StartActivity.this, "Session started",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
+                    Log.d("creating session", "paired users");
+                    Toast.makeText(StartActivity.this, "Session started",
+                            Toast.LENGTH_SHORT).show();
                 }
-            });
-
-        }
-        //searching for the other user
-        else{
-            mChatDatabase.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                    if(dataSnapshot.hasChild(mCurrent_User_id)){
-
-                        //correct formatting to get the key only
-                        String temp = dataSnapshot.child(mCurrent_User_id).getValue().toString();
-                        mChat_user_id = temp.substring(1,temp.indexOf("="));
-                        mTxtView2.setText(mChat_user_id);
-
-                        Log.d("creating session", "paired users");
-                        Toast.makeText(StartActivity.this, "Session started",
-                                Toast.LENGTH_SHORT).show();
-
-                    }
-
+                else{
+                    mTxtView2.setText("waiting");
                 }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
-
-        }
+            }
+        });
 
         mCancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                deleteSessionUser();
                 Intent startIntent = new Intent(StartActivity.this, MainActivity.class);
                 startActivity(startIntent);
                 finish();
@@ -125,21 +96,25 @@ public class StartActivity extends AppCompatActivity {
     //little tweaks needed for locked state........pore dekha jabe
     @Override
     protected void onStop() {
+        deleteSessionUser();
+        super.onStop();
+    }
 
+    private void deleteSessionUser(){
         //deleting current user
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(mCurrent_User_id);
         mUserDatabase.removeValue();
 
         //clearing queue when single user
         if(mChat_user_id.equals("waiting")){
-
             mUserDatabase = FirebaseDatabase.getInstance().getReference().child("queue").child("userId");
             mUserDatabase.removeValue();
-
         }
-
         //deleting session
-        mChatDatabase.child(mCurrent_User_id).removeValue();
+        else {
+            mChatDatabase.child(mCurrent_User_id).removeValue();
+            mChatDatabase.child(mChat_user_id).removeValue();
+        }
 
         //sign-out current user
         FirebaseAuth.getInstance().signOut();
@@ -149,15 +124,10 @@ public class StartActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-
                             Log.d("Stopping", "Deleted user");
-
                         }
                     }
                 });
-
-        super.onStop();
-
     }
 
 }
