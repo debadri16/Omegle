@@ -26,7 +26,6 @@ import java.util.HashMap;
 
 public class StartActivity extends AppCompatActivity {
 
-
     private FirebaseAuth mAuth;
     private FirebaseUser mUser;
 
@@ -34,7 +33,7 @@ public class StartActivity extends AppCompatActivity {
     private TextView mTxtView2;
     private Button mCancelBtn;
 
-    private DatabaseReference mUserDatabase,mChatDatabase,mRootref;
+    private DatabaseReference mQueueDb,mChatDatabase,mRootref;
     private String mCurrent_User_id, mChat_user_id;
 
     @Override
@@ -45,33 +44,41 @@ public class StartActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
         mCurrent_User_id = mAuth.getCurrentUser().getUid();
+        mChat_user_id = "waiting";
 
         mTxtView = (TextView)findViewById(R.id.start_textView);
         mTxtView2 = (TextView)findViewById(R.id.start_textView2);
         mCancelBtn = (Button)findViewById(R.id.start_cancel_btn);
 
         mTxtView.setText(mCurrent_User_id);
-        mTxtView2.setText("waiting");
+        mTxtView2.setText(mChat_user_id);
 
         mChatDatabase = FirebaseDatabase.getInstance().getReference().child("chat");
 
         mChatDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
+                //check if new chat session is created
                 if(dataSnapshot.hasChild(mCurrent_User_id)){
+                    if(mChat_user_id.equals("waiting")) {
+                        //correct formatting to get the key only
+                        String temp = dataSnapshot.child(mCurrent_User_id).getValue().toString();
+                        mChat_user_id = temp.substring(1, temp.indexOf("="));
+                        mTxtView2.setText(mChat_user_id);
 
-                    //correct formatting to get the key only
-                    String temp = dataSnapshot.child(mCurrent_User_id).getValue().toString();
-                    mChat_user_id = temp.substring(1,temp.indexOf("="));
-                    mTxtView2.setText(mChat_user_id);
-
-                    Log.d("creating session", "paired users");
-                    Toast.makeText(StartActivity.this, "Session started",
-                            Toast.LENGTH_SHORT).show();
+                        Log.d("creating session", "paired users");
+                        Toast.makeText(StartActivity.this, "Session started",
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }
+                //check if chat session is deleted
                 else{
-                    mTxtView2.setText("waiting");
+                    if(!mChat_user_id.equals("waiting")){
+                        Toast.makeText(StartActivity.this, "Session ended",
+                                Toast.LENGTH_SHORT).show();
+                        mChat_user_id = "waiting";
+                        mTxtView2.setText(mChat_user_id);
+                    }
                 }
             }
             @Override
@@ -87,7 +94,6 @@ public class StartActivity extends AppCompatActivity {
                 Intent startIntent = new Intent(StartActivity.this, MainActivity.class);
                 startActivity(startIntent);
                 finish();
-
             }
         });
 
@@ -96,38 +102,40 @@ public class StartActivity extends AppCompatActivity {
     //little tweaks needed for locked state........pore dekha jabe
     @Override
     protected void onStop() {
-        deleteSessionUser();
+        //deleteSessionUser();
         super.onStop();
     }
 
     private void deleteSessionUser(){
-        //deleting current user
-        mUserDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(mCurrent_User_id);
-        mUserDatabase.removeValue();
-
         //clearing queue when single user
         if(mChat_user_id.equals("waiting")){
-            mUserDatabase = FirebaseDatabase.getInstance().getReference().child("queue").child("userId");
-            mUserDatabase.removeValue();
+            mQueueDb = FirebaseDatabase.getInstance().getReference().child("queue").child(mCurrent_User_id);
+            mQueueDb.removeValue();
         }
-        //deleting session
+        //deleting chat session
         else {
             mChatDatabase.child(mCurrent_User_id).removeValue();
             mChatDatabase.child(mChat_user_id).removeValue();
+//            queueing other user
+//            HashMap<String, Object> queueMap = new HashMap<>();
+//            queueMap.put("timeStamp", ServerValue.TIMESTAMP);
+//            mQueueDb = FirebaseDatabase.getInstance().getReference().child("queue").child(mChat_user_id);
+//            mQueueDb.setValue(queueMap);
         }
 
         //sign-out current user
         FirebaseAuth.getInstance().signOut();
 
+        //deleting current user
         mUser.delete()
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Log.d("Stopping", "Deleted user");
-                        }
-                    }
-                });
+            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Log.d("Stopping", "Deleted user");
+                }
+                }
+            });
     }
 
 }
