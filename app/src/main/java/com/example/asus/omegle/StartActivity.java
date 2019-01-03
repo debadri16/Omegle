@@ -116,7 +116,7 @@ public class StartActivity extends AppCompatActivity {
         else {
             mChatDatabase.child(mCurrent_User_id).removeValue();
             mChatDatabase.child(mChat_user_id).removeValue();
-//            queueing other user
+//            queueing other user, not needed rigth now
 //            HashMap<String, Object> queueMap = new HashMap<>();
 //            queueMap.put("timeStamp", ServerValue.TIMESTAMP);
 //            mQueueDb = FirebaseDatabase.getInstance().getReference().child("queue").child(mChat_user_id);
