@@ -52,26 +52,26 @@ public class MainActivity extends AppCompatActivity {
             mAuth.signInAnonymously().addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
-                    //authentication check
-                    if(task.isSuccessful()){
-                        //queueing user
-                        mCurrent_User_id = mAuth.getCurrentUser().getUid();
-                        mQueueDb = FirebaseDatabase.getInstance().getReference().child("queue").child(mCurrent_User_id);
-                        HashMap<String, Object> queueMap = new HashMap<>();
-                        queueMap.put("timeStamp", ServerValue.TIMESTAMP);
-                        mQueueDb.setValue(queueMap);
+                //authentication check
+                if(task.isSuccessful()){
+                    //queueing user
+                    mCurrent_User_id = mAuth.getCurrentUser().getUid();
+                    mQueueDb = FirebaseDatabase.getInstance().getReference().child("queue").child(mCurrent_User_id);
+                    HashMap<String, Object> queueMap = new HashMap<>();
+                    queueMap.put("timeStamp", ServerValue.TIMESTAMP);
+                    mQueueDb.setValue(queueMap);
 
-                        mChatProgress.dismiss();
-                        //starting new activity
-                        Intent startIntent = new Intent(MainActivity.this, StartActivity.class);
-                        startActivity(startIntent);
-                        finish();
-                    }
-                    else{
-                        mChatProgress.dismiss();
-                        Toast.makeText(MainActivity.this, "Chat didn't start",
-                                Toast.LENGTH_SHORT).show();
-                    }
+                    mChatProgress.dismiss();
+                    //starting new activity
+                    Intent startIntent = new Intent(MainActivity.this, StartActivity.class);
+                    startActivity(startIntent);
+                    finish();
+                }
+                else{
+                    mChatProgress.dismiss();
+                    Toast.makeText(MainActivity.this, "Chat didn't start",
+                            Toast.LENGTH_SHORT).show();
+                }
                 }
             });
             }
