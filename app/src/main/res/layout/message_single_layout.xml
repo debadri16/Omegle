@@ -32,6 +32,7 @@
         android:padding="10dp"
         android:text="TextView"
         android:textColor="@android:color/white"
+        android:textColorLink="@color/colorAccent"
         android:textSize="18sp"
         android:visibility="visible" />
 

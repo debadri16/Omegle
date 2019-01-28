@@ -44,6 +44,7 @@ public class StartActivity extends AppCompatActivity {
     //ager baaler jinish....gone visibility
     private TextView mTxtView;
     private TextView mTxtView2;
+    private TextView mTxtView3;
     private Button mCancelBtn;
 
     //new stuffs
@@ -79,6 +80,8 @@ public class StartActivity extends AppCompatActivity {
 
         mTxtView = (TextView)findViewById(R.id.start_textView);
         mTxtView2 = (TextView)findViewById(R.id.start_textView2);
+        mTxtView3 = (TextView)findViewById(R.id.waiting_textView);
+
         mCancelBtn = (Button)findViewById(R.id.start_cancel_btn);
 
         mTxtView.setText(mCurrent_User_id);
@@ -122,6 +125,7 @@ public class StartActivity extends AppCompatActivity {
                         mChatAddBtn.setVisibility(View.VISIBLE);
                         mChatSendBtn.setVisibility(View.VISIBLE);
                         mChatMessageView.setVisibility(View.VISIBLE);
+                        mTxtView3.setVisibility(View.GONE);
                         loadMessages();
 
                         Log.d("creating session", "paired users");
@@ -136,6 +140,11 @@ public class StartActivity extends AppCompatActivity {
                                 Toast.LENGTH_SHORT).show();
                         mChat_user_id = "waiting";
                         mTxtView2.setText(mChat_user_id);
+                        mTxtView3.setVisibility(View.VISIBLE);
+                        mTxtView3.setText("Valar Morghulis");
+                        mChatAddBtn.setVisibility(View.INVISIBLE);
+                        mChatSendBtn.setVisibility(View.INVISIBLE);
+                        mChatMessageView.setVisibility(View.INVISIBLE);
                     }
                 }
             }
@@ -178,7 +187,7 @@ public class StartActivity extends AppCompatActivity {
     //little tweaks needed for locked state........pore dekha jabe
     @Override
     protected void onStop() {
-        //deleteSessionUser();
+        deleteSessionUser();
         super.onStop();
     }
 
@@ -192,6 +201,8 @@ public class StartActivity extends AppCompatActivity {
         else {
             mChatDatabase.child(mCurrent_User_id).removeValue();
             mChatDatabase.child(mChat_user_id).removeValue();
+            mRootRef.child("messages").child(mCurrent_User_id).removeValue();
+            mRootRef.child("messages").child(mChat_user_id).removeValue();
 //            queueing other user, not needed rigth now
 //            HashMap<String, Object> queueMap = new HashMap<>();
 //            queueMap.put("timeStamp", ServerValue.TIMESTAMP);
