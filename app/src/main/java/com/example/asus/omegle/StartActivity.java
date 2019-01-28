@@ -103,7 +103,6 @@ public class StartActivity extends AppCompatActivity {
         mMessageList.setLayoutManager(mLinearLayout);
 
         mMessageList.setAdapter(mAdapter);
-        //loadMessages();
 
 
 
@@ -118,6 +117,12 @@ public class StartActivity extends AppCompatActivity {
                         String temp = dataSnapshot.child(mCurrent_User_id).getValue().toString();
                         mChat_user_id = temp.substring(1, temp.indexOf("="));
                         mTxtView2.setText(mChat_user_id);
+
+                        //start child listener
+                        mChatAddBtn.setVisibility(View.VISIBLE);
+                        mChatSendBtn.setVisibility(View.VISIBLE);
+                        mChatMessageView.setVisibility(View.VISIBLE);
+                        loadMessages();
 
                         Log.d("creating session", "paired users");
                         Toast.makeText(StartActivity.this, "Session started",
@@ -167,7 +172,6 @@ public class StartActivity extends AppCompatActivity {
             }
         });
 
-        loadMessages();
 
     }
 
@@ -286,8 +290,6 @@ public class StartActivity extends AppCompatActivity {
 
                 messagesList.add(message);
                 mAdapter.notifyDataSetChanged();
-                Toast.makeText(StartActivity.this, "Message sst",
-                        Toast.LENGTH_SHORT).show();
 
                 mMessageList.scrollToPosition(messagesList.size()-1);
 
