@@ -166,6 +166,9 @@ public class StartActivity extends AppCompatActivity {
                 loadMoreMessages();
             }
         });
+
+        loadMessages();
+
     }
 
     //little tweaks needed for locked state........pore dekha jabe
@@ -344,9 +347,6 @@ public class StartActivity extends AppCompatActivity {
                 public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
                     if(databaseError != null){
                         Log.d("CHAT_LOG", databaseError.getMessage().toString());
-                    }
-                    else{
-                        loadMessages();
                     }
                 }
             });
