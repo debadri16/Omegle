@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
                     //starting new activity
                     Intent startIntent = new Intent(MainActivity.this, StartActivity.class);
                     startActivity(startIntent);
-                    finish();
+                    //finish();
                 }
                 else{
                     mChatProgress.dismiss();
